@@ -1,4 +1,3 @@
-import pyodbc
 from tkinter import *
 from tkinter import messagebox
 from tkinter import ttk
@@ -6,29 +5,54 @@ from ignored_file import get_conn
 
 root = Tk()
 root.title('student manager')
-root.geometry('600x550')
+root.geometry('780x600')
+root.resizable(False, False)
+root.grid_rowconfigure(5, weight=1)
+root.grid_columnconfigure(0, weight=1)
+
 selected_student_id = None
+
+style = ttk.Style()
+style.theme_use("default")
+
+style.configure("Treeview",
+                background="#f9f9f9",
+                foreground="#222",
+                rowheight=28,
+                fieldbackground="#f9f9f9",
+                font=('Segoe UI', 10))
+
+style.configure("Treeview.Heading",
+                font=('Segoe UI', 11, 'bold'),
+                background="#ddeeff",
+                foreground="#000")
+
+style.map("Treeview", background=[('selected', '#add8e6')])
 
 # --------LABEL + ENTRY
 
-Label(root, text='fullname').grid(row=0, column=0, sticky=W, padx=5, pady=5)
-entry_full = Entry(root)
+form_frame = Frame(root)
+form_frame.grid(row=0, column=0, columnspan=4, pady=10, padx=10)
+
+Label(form_frame, text="Full Name:", font=('Segoe UI', 10)).grid(row=0, column=0, padx=5, sticky="e")
+entry_full = Entry(form_frame, font=('Segoe UI', 10), width=15)
 entry_full.grid(row=0, column=1, padx=5)
 
-Label(root, text='StudentNUM').grid(row=1, column=0, sticky=W, padx=5, pady=5)
-entry_num = Entry(root)
-entry_num.grid(row=1, column=1, padx=5)
+Label(form_frame, text="Student Number:", font=('Segoe UI', 10)).grid(row=0, column=2, padx=5, sticky="e")
+entry_num = Entry(form_frame, font=('Segoe UI', 10), width=12)
+entry_num.grid(row=0, column=3, padx=5)
 
-Label(root, text='Major').grid(row=2, column=0, sticky=W, padx=5, pady=5)
-entry_major = Entry(root)
-entry_major.grid(row=2, column=1, padx=5)
+Label(form_frame, text="Major:", font=('Segoe UI', 10)).grid(row=0, column=4, padx=5, sticky="e")
+entry_major = Entry(form_frame, font=('Segoe UI', 10), width=12)
+entry_major.grid(row=0, column=5, padx=5)
 
-Label(root, text='Semester').grid(row=3, column=0, sticky=W, padx=5, pady=5)
-entry_sem = Entry(root)
-entry_sem.grid(row=3, column=1, padx=5)
+Label(form_frame, text="Semester:", font=('Segoe UI', 10)).grid(row=0, column=6, padx=5, sticky="e")
+entry_sem = Entry(form_frame, font=('Segoe UI', 10), width=5)
+entry_sem.grid(row=0, column=7, padx=5)
 
 
 # ----------- SUBMIT STUDENT
+
 
 def submit_student():
     fullname = entry_full.get()
@@ -77,30 +101,35 @@ def submit_student():
             conn.close()
 
 
-submit_btn = Button(root, text='Submit', command=submit_student)
-submit_btn.grid(row=4, column=1, pady=10)
-
 # ------------ Treeview
 
-tree = ttk.Treeview(root, columns=("ID", "FullName", "StudentNUM", "Major", "Semester"), show="headings")
-tree.grid(row=5, column=0, columnspan=2, padx=5, pady=5)
+tree_frame = Frame(root)
+tree_frame.grid(row=5, column=0, columnspan=4, pady=10, padx=10)
 
+scrollbar = Scrollbar(tree_frame)
+scrollbar.pack(side=RIGHT, fill=Y)
+
+tree = ttk.Treeview(tree_frame,
+                    columns=("ID", "FullName", "StudentNUM", "Major", "Semester"),
+                    show="headings",
+                    yscrollcommand=scrollbar.set)
+tree.pack(side=LEFT, fill=BOTH, expand=True)
+
+scrollbar.config(command=tree.yview)
+
+# اضافه‌کردن عنوان ستون‌ها
 tree.heading("ID", text="ID")
-tree.heading("FullName", text="FullName")
-tree.heading("StudentNUM", text="StudentNUM")
+tree.heading("FullName", text="Full Name")
+tree.heading("StudentNUM", text="Student Number")
 tree.heading("Major", text="Major")
 tree.heading("Semester", text="Semester")
 
+tree.column("ID", width=50, anchor=CENTER)
+tree.column("FullName", width=180, anchor=W)
+tree.column("StudentNUM", width=120, anchor=CENTER)
+tree.column("Major", width=120, anchor=W)
+tree.column("Semester", width=80, anchor=CENTER)
 
-tree.column("ID", width=100, anchor="w")  # Configure column width and alignment
-tree.column("FullName", width=100, anchor="w")
-tree.column("StudentNUM", width=100, anchor="w")
-tree.column("Major", width=100, anchor="w")
-tree.column("Semester", width=100, anchor="w")
-
-scrollbar = ttk.Scrollbar(root, orient="vertical", command=tree.yview)
-tree.configure(yscrollcommand=scrollbar.set)
-scrollbar.grid(row=5, column=2, sticky="ns")
 
 # -------------- SHOW STUDENTS
 
@@ -126,9 +155,6 @@ def show_students():
         if 'conn' in locals():
             conn.close()
 
-
-btn_show = Button(root, text="show all", command=show_students)
-btn_show.grid(row=4, column=0, pady=10)
 
 # --------------- SELECT STUDENT
 
@@ -157,6 +183,7 @@ def select_student(event):
 
 
 tree.bind("<ButtonRelease-1>", select_student)
+
 
 # ------------- DELETE STUDENT
 
@@ -194,9 +221,6 @@ def delete_student():
         selected_student_id = None
 
 
-btn_delete = Button(root, text="Delete", command=delete_student)
-btn_delete.grid(row=6, column=0, pady=10)
-
 # -------------- EDIT STUDENT
 
 
@@ -229,7 +253,8 @@ def edit_student():
     try:
         with get_conn() as conn:
             cursor = conn.cursor()
-            cursor.execute("SELECT * FROM StudentInfo WHERE StudentNUM = ? AND ID != ?", student_number, selected_student_id)
+            cursor.execute("SELECT * FROM StudentInfo WHERE StudentNUM = ? AND ID != ?", student_number,
+                           selected_student_id)
             existing = cursor.fetchone()
             if existing:
                 messagebox.showerror("Error", "The Student Number is already submitted!")
@@ -253,9 +278,6 @@ def edit_student():
     except Exception as e:
         messagebox.showerror("DB Error", f"{e}")
 
-
-btn_update = Button(root, text="Edit", command=edit_student)
-btn_update.grid(row=6, column=1, pady=10)
 
 # ---------- RESET DATA
 
@@ -284,8 +306,31 @@ def reset_data():
         messagebox.showerror("Error", f"{e}")
 
 
-btn_reset = Button(root, text="RESET", bg='red', fg='white', command=reset_data)
-btn_reset.grid(row=6, column=2, pady=10, padx=5)
+# ------------ BUTTON STYLE
+
+btn_style = {
+    "font": ('Vazir', 10, 'bold'),
+    "bg": "#4CAF50",
+    "fg": "white",
+    "width": 12,
+    "padx": 5,
+    "pady": 3
+}
+
+btn_frame = Frame(root)
+btn_frame.grid(row=4, column=0, columnspan=4, pady=10)
+
+btn_submit = Button(btn_frame, text="Submit", command=submit_student, **btn_style)
+btn_edit = Button(btn_frame, text="Edit", command=edit_student, **btn_style)
+btn_delete = Button(btn_frame, text="Delete", command=delete_student, **btn_style)
+btn_show = Button(btn_frame, text="Show All", command=show_students, **btn_style)
+btn_reset = Button(btn_frame, text="Reset", command=reset_data, bg="red", fg="white", font=('Vazir', 10, 'bold'))
+
+btn_submit.grid(row=0, column=0, padx=5)
+btn_edit.grid(row=0, column=1, padx=5)
+btn_delete.grid(row=0, column=2, padx=5)
+btn_show.grid(row=0, column=3, padx=5)
+btn_reset.grid(row=0, column=4, padx=5)
 
 
 root.mainloop()
