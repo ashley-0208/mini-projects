@@ -257,4 +257,35 @@ def edit_student():
 btn_update = Button(root, text="Edit", command=edit_student)
 btn_update.grid(row=6, column=1, pady=10)
 
+# ---------- RESET DATA
+
+
+def reset_data():
+    confirm = messagebox.askyesno("Reset", "Are you sure you want to delete all data? This operation cannot be undone")
+    if not confirm:
+        return
+
+    try:
+        with get_conn() as conn:
+            cursor = conn.cursor()
+            cursor.execute("DELETE FROM StudentInfo")
+            cursor.execute("DBCC CHECKIDENT ('StudentInfo', RESEED, ?)", 0)
+            conn.commit()
+
+        tree.delete(*tree.get_children())
+        entry_full.delete(0, END)
+        entry_num.delete(0, END)
+        entry_major.delete(0, END)
+        entry_sem.delete(0, END)
+
+        messagebox.showinfo("Reset", "All data was successfully erased.")
+
+    except Exception as e:
+        messagebox.showerror("Error", f"{e}")
+
+
+btn_reset = Button(root, text="RESET", bg='red', fg='white', command=reset_data)
+btn_reset.grid(row=6, column=2, pady=10, padx=5)
+
+
 root.mainloop()
