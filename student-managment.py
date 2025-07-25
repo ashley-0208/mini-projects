@@ -6,7 +6,7 @@ from ignored_file import get_conn
 
 root = Tk()
 root.title('student manager')
-root.geometry('600x400')
+root.geometry('600x550')
 selected_student_id = None
 
 # --------LABEL + ENTRY
@@ -49,6 +49,12 @@ def submit_student():
     try:
         with get_conn() as conn:
             cursor = conn.cursor()
+            cursor.execute("SELECT * FROM StudentInfo WHERE StudentNUM = ?", student_number)
+            existing = cursor.fetchone()
+            if existing:
+                messagebox.showerror("Error", "The Student Number is already submitted!")
+                return
+
             cursor.execute("""
                 INSERT INTO StudentInfo (FullName, StudentNUM, Major, Semester)
                 VALUES (?, ?, ?, ?)
@@ -111,7 +117,8 @@ def show_students():
         tree.delete(*tree.get_children())
 
         for row in rows:
-            tree.insert("", 'end', values=row)
+            ID, fullname, studentNUM, major, semester = row
+            tree.insert("", END, values=(str(ID), fullname, studentNUM, major, str(semester)))
 
     except Exception as e:
         messagebox.showerror("DB Error", f"{e}")
@@ -222,6 +229,12 @@ def edit_student():
     try:
         with get_conn() as conn:
             cursor = conn.cursor()
+            cursor.execute("SELECT * FROM StudentInfo WHERE StudentNUM = ? AND ID != ?", student_number, selected_student_id)
+            existing = cursor.fetchone()
+            if existing:
+                messagebox.showerror("Error", "The Student Number is already submitted!")
+                return
+
             cursor.execute("""
                         UPDATE StudentInfo
                         SET FullName = ?, StudentNUM = ?, Major = ?, Semester = ?
