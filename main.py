@@ -1,8 +1,8 @@
 from tkinter import *
 from tkinter import messagebox
 from tkinter import ttk
-from ignored_file import get_conn
-from Login_window import LoginWindow
+from db_config import get_conn
+from screens.login_window import LoginWindow
 
 root = Tk()
 root.title('student manager')
@@ -56,9 +56,6 @@ Label(form_frame, text="Semester:", font=('Segoe UI', 10)).grid(row=1, column=2,
 entry_sem = Entry(form_frame, font=('Segoe UI', 10), width=10)
 entry_sem.grid(row=1, column=3, padx=5, pady=5)
 
-# ----------- LOGIN WINDOW
-
-Button(root, text="Login", command=lambda: LoginWindow(root)).pack()
 
 # ----------- SUBMIT STUDENT
 
@@ -123,10 +120,8 @@ tree = ttk.Treeview(tree_frame,
                     show="headings",
                     yscrollcommand=scrollbar.set)
 tree.pack(side=LEFT, fill=BOTH, expand=True)
-
 scrollbar.config(command=tree.yview)
 
-# اضافه‌کردن عنوان ستون‌ها
 tree.heading("ID", text="ID")
 tree.heading("FullName", text="Full Name")
 tree.heading("StudentNUM", text="Student Number")
@@ -341,4 +336,7 @@ btn_delete.grid(row=0, column=2, padx=5)
 btn_show.grid(row=0, column=3, padx=5)
 btn_reset.grid(row=0, column=4, padx=5)
 
-root.mainloop()
+if __name__ == "__main__":
+    root.withdraw()
+    LoginWindow(root)
+    root.mainloop()
