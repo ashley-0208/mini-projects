@@ -2,10 +2,11 @@ from tkinter import *
 from tkinter import messagebox
 from tkinter import ttk
 from ignored_file import get_conn
+from Login_window import LoginWindow
 
 root = Tk()
 root.title('student manager')
-root.geometry('780x600')
+root.geometry('650x600')
 root.resizable(False, False)
 root.grid_rowconfigure(5, weight=1)
 root.grid_columnconfigure(0, weight=1)
@@ -29,27 +30,35 @@ style.configure("Treeview.Heading",
 
 style.map("Treeview", background=[('selected', '#add8e6')])
 
-# --------LABEL + ENTRY
+title = Label(root, text="Student Management System", font=("Segoe UI", 16, "bold"))
+title.grid(row=0, column=0, columnspan=4, pady=20)
+
+# --------LABEL + ENTRY(the empty box!)
 
 form_frame = Frame(root)
-form_frame.grid(row=0, column=0, columnspan=4, pady=10, padx=10)
+form_frame.grid(row=1, column=0, columnspan=4, pady=5)
 
-Label(form_frame, text="Full Name:", font=('Segoe UI', 10)).grid(row=0, column=0, padx=5, sticky="e")
-entry_full = Entry(form_frame, font=('Segoe UI', 10), width=15)
-entry_full.grid(row=0, column=1, padx=5)
+# first row
+Label(form_frame, text="Full Name:", font=('Segoe UI', 10)).grid(row=0, column=0, sticky="e", padx=5, pady=5)
+entry_full = Entry(form_frame, font=('Segoe UI', 10), width=25)
+entry_full.grid(row=0, column=1, padx=5, pady=5)
 
-Label(form_frame, text="Student Number:", font=('Segoe UI', 10)).grid(row=0, column=2, padx=5, sticky="e")
-entry_num = Entry(form_frame, font=('Segoe UI', 10), width=12)
-entry_num.grid(row=0, column=3, padx=5)
+Label(form_frame, text="Student Number:", font=('Segoe UI', 10)).grid(row=0, column=2, sticky="e", padx=5, pady=5)
+entry_num = Entry(form_frame, font=('Segoe UI', 10), width=15)
+entry_num.grid(row=0, column=3, padx=5, pady=5)
 
-Label(form_frame, text="Major:", font=('Segoe UI', 10)).grid(row=0, column=4, padx=5, sticky="e")
-entry_major = Entry(form_frame, font=('Segoe UI', 10), width=12)
-entry_major.grid(row=0, column=5, padx=5)
+# second row
+Label(form_frame, text="Major:", font=('Segoe UI', 10)).grid(row=1, column=0, sticky="e", padx=5, pady=5)
+entry_major = Entry(form_frame, font=('Segoe UI', 10), width=20)
+entry_major.grid(row=1, column=1, padx=5, pady=5)
 
-Label(form_frame, text="Semester:", font=('Segoe UI', 10)).grid(row=0, column=6, padx=5, sticky="e")
-entry_sem = Entry(form_frame, font=('Segoe UI', 10), width=5)
-entry_sem.grid(row=0, column=7, padx=5)
+Label(form_frame, text="Semester:", font=('Segoe UI', 10)).grid(row=1, column=2, sticky="e", padx=5, pady=5)
+entry_sem = Entry(form_frame, font=('Segoe UI', 10), width=10)
+entry_sem.grid(row=1, column=3, padx=5, pady=5)
 
+# ----------- LOGIN WINDOW
+
+Button(root, text="Login", command=lambda: LoginWindow(root)).pack()
 
 # ----------- SUBMIT STUDENT
 
@@ -318,19 +327,18 @@ btn_style = {
 }
 
 btn_frame = Frame(root)
-btn_frame.grid(row=4, column=0, columnspan=4, pady=10)
+btn_frame.grid(row=2, column=0, columnspan=4, pady=10)
 
-btn_submit = Button(btn_frame, text="Submit", command=submit_student, **btn_style)
-btn_edit = Button(btn_frame, text="Edit", command=edit_student, **btn_style)
-btn_delete = Button(btn_frame, text="Delete", command=delete_student, **btn_style)
-btn_show = Button(btn_frame, text="Show All", command=show_students, **btn_style)
-btn_reset = Button(btn_frame, text="Reset", command=reset_data, bg="red", fg="white", font=('Vazir', 10, 'bold'))
+btn_submit = Button(btn_frame, text="Add", command=submit_student, width=10)
+btn_edit = Button(btn_frame, text="Edit", command=edit_student, width=10)
+btn_delete = Button(btn_frame, text="Delete", command=delete_student, width=10)
+btn_show = Button(btn_frame, text="Show All", command=show_students, width=10)
+btn_reset = Button(btn_frame, text="Reset DB", command=reset_data, width=10, bg="#9E9E9E")
 
 btn_submit.grid(row=0, column=0, padx=5)
 btn_edit.grid(row=0, column=1, padx=5)
 btn_delete.grid(row=0, column=2, padx=5)
 btn_show.grid(row=0, column=3, padx=5)
 btn_reset.grid(row=0, column=4, padx=5)
-
 
 root.mainloop()
